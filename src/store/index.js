@@ -15,6 +15,7 @@ export default createStore({
             // Generate a random ID for the employee (for simplicity, you can use a proper ID generation method in a real app)
             employee.id = Math.random().toString(36).substr(2, 9);
             state.employees.push(employee);
+            localStorage.setItem('employees', JSON.stringify(state.employees));
         },
         updateEmployeeStatus(state, { employeeId, newStatus }) {
             const employeeToUpdate = state.employees.find((emp) => emp.id === employeeId);
@@ -53,6 +54,8 @@ export default createStore({
             const storedEmployees = localStorage.getItem('employees');
             if (storedEmployees) {
                 state.employees = JSON.parse(storedEmployees);
+            } else {
+                state.employees = []; // Initialize the state.employees as an empty array if there are no employees in local storage
             }
 
             const darkTheme = localStorage.getItem('darkTheme');

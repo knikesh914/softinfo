@@ -54,7 +54,7 @@
                         v-model="displayName"
                         :readonly="readOnly"
                       />
-                      <div class="error-message text-left text-danger" v-if="displayNameError">{{ displayNameError }}</div>
+                      <!-- <div class="error-message text-left text-danger" v-if="displayNameError">{{ displayNameError }}</div> -->
                     </div>
                     <div class="form-group">
                       <input
@@ -64,7 +64,7 @@
                         v-model="loginId"
                         :readonly="readOnly"
                       />
-                      <div class="error-message text-left text-danger" v-if="loginIdError">{{ loginIdError }}</div>
+                      <!-- <div class="error-message text-left text-danger" v-if="loginIdError">{{ loginIdError }}</div> -->
                       
                     </div>
                     <div class="form-group">
@@ -84,7 +84,7 @@
                         <i v-else class="fa fa-eye-slash"></i>
                       </span>
                       
-                      <div class="error-message text-left text-danger" v-if="passwordError">{{ passwordError }}</div>
+                      <!-- <div class="error-message text-left text-danger" v-if="passwordError">{{ passwordError }}</div> -->
                     </div>
 
                     <div class="switchRow">
@@ -188,10 +188,7 @@ export default {
       readOnly: false,
       showPassword: false,
       searchText: "",
-      displayNameError: "",
-      loginIdError: "",
-      passwordError: "",
-      statusError: "",
+
     };
   },
   computed: {
@@ -204,48 +201,36 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['toggleTheme','undoDeleteEmployee']),
+    ...mapActions(['saveEmployee','toggleTheme','undoDeleteEmployee']),
     // Prepare employee object with entered details
-    saveEmployee() {
-      // Reset previous error messages
-      this.displayNameError = "";
-      this.loginIdError = "";
-      this.passwordError = "";
-      this.statusError = "";
+    async saveEmployee() {
+    // Prepare employee object with entered details
+    const employee = {
+      displayName: this.displayName,
+      loginId: this.loginId,
+      password: this.password,
+      status: this.status,
+    };
 
-      // Validate fields
-      if (!this.displayName) {
-        this.displayNameError = "Display Name is required.";
-        return;
-      }
-      if (!this.loginId) {
-        this.loginIdError = "Login ID is required.";
-        return;
-      }
-      if (!this.password) {
-        this.passwordError = "Password is required.";
-        return;
-      }
-     
+    if (this.selectedEmployee) {
+      // If a selectedEmployee exists, update the existing employee
+      employee.id = this.selectedEmployee.id; // Set the same ID to update the existing employee
+      this.$store.commit('updateEmployee', employee);
+    } else {
+      // If there is no selectedEmployee, add a new employee
+      await this.$store.dispatch('saveEmployee', employee);
+    }
 
-      // Prepare employee object with entered details
-      const employee = {
-        displayName: this.displayName,
-        loginId: this.loginId,
-        password: this.password,
-        status: this.status,
-      };
-      
-      // ... Rest of your saveEmployee logic ...
-
-      // Clear the input fields and enter view mode after saving
-      this.displayName = '';
-      this.loginId = '';
-      this.password = '';
-      this.status = '';
-      this.selectedEmployee = null;
-      this.$store.dispatch('notifyEmployeeSaved', employee);
-    },
+    // Clear the input fields and enter view mode after saving
+    this.displayName = '';
+    this.loginId = '';
+    this.password = '';
+    this.status = '';
+    this.selectedEmployee = null;
+    this.readOnly = false; // Set readOnly back to false to disable editing
+  },
+    // ... (the rest of your component methods) ...
+  
     // Set the selectedEmployee property to the clicked employee
     showEmployeeDetails(employee) {
       this.selectedEmployee = employee;
